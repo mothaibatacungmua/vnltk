@@ -1,75 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-VN_LOWERCASE = [
-    'a','ạ','ả','à','ã',
-    'â','ậ','ẩ','ầ','ẫ',
-    'ă','ặ','ẳ','ằ','ẵ',
-    'b','c','d','đ',
-    'e','ẹ','ẻ','è','ẽ',
-    'ê','ệ','ể','ề','ễ',
-    'f','g','h',
-    'i','ị','ỉ','ì','ĩ',
-    'j','k','l','m','n',
-    'o','ọ','ỏ','ò','õ',
-    'ô','ộ','ổ','ồ','ỗ',
-    'ơ','ợ','ở','ờ','ỡ',
-    'p','q','r','s','t',
-    'u','ụ','ủ','ù','ũ',
-    'ư','ự','ử','ừ','ữ',
-    'v','w','x','y','z']
-
-VN_UPPERCASE = [
-    'A','Ạ','Ả','À','Ã',
-    'Â','Ậ','Ẩ','Ầ','Ã',
-    'Ă','Ặ','Ắ','Ằ','Ẵ',
-    'B','C','D','Đ',
-    'E','Ẹ','Ẻ','È','Ẽ',
-    'Ê','Ệ','Ể','Ề','Ễ',
-    'F','G','H',
-    'I','Ị','Ỉ','Ì','Ĩ',
-    'J','K','L','M','N',
-    'O','Ọ','Ỏ','Ò','Õ',
-    'Ô','Ộ','Ổ','Ồ','Ỗ',
-    'Ơ','Ợ','Ớ','Ờ','Ỡ',
-    'P','Q','R','S','T',
-    'U','Ụ','Ủ','Ù','Ũ',
-    'Ư','Ự','Ử','Ừ','Ữ',
-    'V','W','X','Y','Z']
-
-SENTENCE_DELIMITER = ['.', '?', '\n']
-
-
-#input is a unicode character
-def vn_islowercase(char):
-    return char.encode('utf-8') in VN_LOWERCASE
-
-
-#input is a unicode character
-def vn_isuppercase(char):
-    return char.encode('utf-8') in VN_UPPERCASE
-
-
-#input is a unicode string
-def vn_tolowercase(s):
-    ls = list(s)
-    for c in range(0, len(ls)):
-        if vn_isuppercase(ls[c]):
-            ic = VN_UPPERCASE.index(ls[c].encode('utf-8'))
-            ls[c] = VN_LOWERCASE[ic]
-
-    return u''.join(ls)
-
-
-#input is a unicode string
-def vn_touppercase(s):
-    ls = list(s)
-    for c in range(0, len(ls)):
-        if vn_isuppercase(ls[c]):
-            ic = VN_LOWERCASE.index(ls[c].encode('utf-8'))
-            ls[c] = VN_UPPERCASE[ic]
-
-    return u''.join(ls)
+from src.data.utils import vn_isuppercase
+import codecs
 
 def normalize(paragraph):
     return u' '.join(paragraph.split())
@@ -172,6 +105,15 @@ if __name__ == '__main__':
     #print corpus
     tokens , sentences = tokenize(corpus)
 
+    fs = codecs.open('../data/vn-sentences.txt', 'wb', 'utf-8')
+
     for s in sentences:
-        print s
+        for c in s:
+            print hex(ord(c))
+
+        fs.write(s+'\n')
+
+
+    fs.close()
+
 
