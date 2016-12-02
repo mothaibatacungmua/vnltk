@@ -3,31 +3,11 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
-
-
-typedef struct _HASHMAP_ENTRY{
-	unsigned int hash;
-	unsigned int index;
-	struct _HASHMAP_ENTRY* next;
-}HASHMAP_ENTRY;
-
-typedef struct _HASHMAP_TABLE{
-	int buckets;
-	HASHMAP_ENTRY** table;
-}HASHMAP_TABLE;
-
-#define BUCKET_LENGTH 100
-#define WINDOW_SIZE 4
+#include "glove.h"
 
 wchar_t** g_vocab = NULL;
 int g_vocab_len = 0;
 HASHMAP_TABLE g_map = {};
-
-typedef struct _COOC_REC{
-	unsigned int word1;
-	unsigned int word2;
-	unsigned int cooc;
-}COOC_REC;
 
 wchar_t* readline(FILE* fs, wchar_t* eof){
 	fpos_t pos;
@@ -504,7 +484,7 @@ unsigned int* convert_tokens(wchar_t** tokens, int length){
 	return hash_tokens;
 }
 
-void sen2cocc(char* input_file, char* output_file){
+void sen2coocc(char* input_file, char* output_file){
 	FILE* ifs = fopen(input_file, "r");
 	FILE* ofs = fopen(output_file, "wb");
 	wchar_t* line = NULL;
@@ -567,9 +547,10 @@ int main(){
 	}
 
 	dump_map(&g_map, "vocab.bin");
-	sen2cocc("../data/vn-sentences.txt", "cooc.bin");
+	sen2coocc("../data/vn-sentences.txt", "cooc.bin");
 
 	free_tokens(vocab, length);
+	free_map(&g_map);
 
 	return 0;
 }
