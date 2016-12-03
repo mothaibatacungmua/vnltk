@@ -15,5 +15,5 @@ typedef struct _HASHMAP_TABLE{
 typedef struct _COOC_REC{
 	unsigned int word1;
 	unsigned int word2;
-	unsigned int cooc;
+	double value;
 }COOC_REC;

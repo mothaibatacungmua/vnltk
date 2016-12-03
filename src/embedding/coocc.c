@@ -352,14 +352,14 @@ void dump_map(HASHMAP_TABLE* map, char* output_file){
 
 }
 
-void load_map(HASHMAP_TABLE* map, char* output_file){
+void load_map(HASHMAP_TABLE* map, char* input_file){
 	int buckets;
 	int result;
 	int i;
 	unsigned int hash;
 	unsigned int index;
 	HASHMAP_ENTRY* entry = NULL;
-	FILE* fs = fopen(output_file, "r");
+	FILE* fs = fopen(input_file, "r");
 
 	result = fread(&buckets, sizeof(int),1, fs);
 	alloc_table(buckets, map);
@@ -378,12 +378,12 @@ void load_map(HASHMAP_TABLE* map, char* output_file){
 	return;
 }
 
-int count_cooc(unsigned int* tokens, int length, unsigned int A, unsigned int B){
+double calc_cooc(unsigned int* tokens, int length, unsigned int A, unsigned int B){
 	unsigned int* i,*j, *end, *begin;
-	int count = 0;
+	double value = 0.0;
 
 	if(A == B)
-		return 0;
+		return 0.0;
 
 	for(i = tokens; i < (tokens+length); i++){
 		if(*i == A){
@@ -397,12 +397,13 @@ int count_cooc(unsigned int* tokens, int length, unsigned int A, unsigned int B)
 
 			for(j = begin; j < end; j++){
 				if(*j == B)
-					count++;
+					// inverse of distance between words
+					value += 1.0*sizeof(unsigned int)/(abs((long)j - (long)i));
 			}
 		}
 	}
 
-	return count;
+	return value;
 }
 
 int find_in_set(unsigned int* set, int current_length, unsigned int v){
@@ -494,7 +495,7 @@ void sen2coocc(char* input_file, char* output_file){
 	wchar_t wch=0;
 	unsigned int* set_words;
 	unsigned int* hash_tokens;
-	int i,j;
+	int i,j,t;
 	COOC_REC crec;
 
 	while(wch != (wchar_t)WEOF){
@@ -505,16 +506,17 @@ void sen2coocc(char* input_file, char* output_file){
 
 		for(i = 0; i < set_len; i++){
 			for(j = (i+1); j < set_len; j++){
-				crec.word1 = set_words[i];
-				crec.word2 = set_words[j];
-				crec.cooc = count_cooc(hash_tokens, tokens_len, crec.word1, crec.word2);
-				if(crec.cooc == 0)
+				crec.word1 = get_index(g_map, set_words[i]);
+				crec.word2 = get_index(g_map, set_words[j]);
+				crec.value = calc_cooc(hash_tokens, tokens_len, crec.word1, crec.word2);
+				if(crec.value == 0.0)
 					continue;
 
 				fwrite(&crec, sizeof(COOC_REC), 1, ofs);
 
-				crec.word1 = set_words[j];
-				crec.word2 = set_words[i];
+				t = crec.word1;
+				crec.word1 = crec.word2;
+				crec.word2 = t;
 				fwrite(&crec, sizeof(COOC_REC), 1, ofs);
 			}
 		}
@@ -543,7 +545,7 @@ int main(){
 	alloc_table(BUCKET_LENGTH, &g_map);
 
 	for(i = 0; i < length; i++){
-		insert_word(&g_map, vocab[i], i);
+		insert_word(&g_map, vocab[i], i+1);
 	}
 
 	dump_map(&g_map, "vocab.bin");
