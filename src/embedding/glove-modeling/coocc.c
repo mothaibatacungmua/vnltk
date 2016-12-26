@@ -506,9 +506,9 @@ void sen2coocc(char* input_file, char* output_file){
 
 		for(i = 0; i < set_len; i++){
 			for(j = (i+1); j < set_len; j++){
-				crec.word1 = get_index(g_map, set_words[i]);
-				crec.word2 = get_index(g_map, set_words[j]);
-				crec.value = calc_cooc(hash_tokens, tokens_len, crec.word1, crec.word2);
+				crec.word1 = get_index(&g_map, set_words[i]);
+				crec.word2 = get_index(&g_map, set_words[j]);
+				crec.value = calc_cooc(hash_tokens, tokens_len, set_words[i], set_words[j]);
 				if(crec.value == 0.0)
 					continue;
 
